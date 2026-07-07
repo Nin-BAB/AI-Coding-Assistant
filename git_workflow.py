@@ -1,12 +1,9 @@
 """
 git_workflow.py — Git 工作流 AI 辅助工具
 
-两个功能：
+功能：
 1. 自动生成 Git Commit Message（读 git diff → AI 写提交说明）
 2. AI 代码审查（读代码文件 → AI 给优化建议）
-
-对应 JD：
-"搭建 AI Coding 工具与现有研发流程的衔接"
 """
 import subprocess
 from openai import OpenAI
@@ -19,16 +16,8 @@ client = OpenAI(api_key=API_KEY, base_url=API_BASE)
 # 功能 1：生成 Commit Message
 # ============================================================
 def get_git_diff() -> str:
-    """
-    获取当前 Git 仓库的变更内容。
-
-    用到的 Git 命令：
-    git diff                → 已暂存(staged)的变更
-    git diff --cached       → 已暂存(staged)的变更（等价）
-    git diff HEAD           → 所有未提交的变更
-    """
+    """获取当前 Git 仓库的变更内容。"""
     try:
-        # 先试 git diff HEAD（看所有未提交的改动）
         result = subprocess.run(
             ["git", "diff", "HEAD"],
             capture_output=True,
@@ -38,7 +27,6 @@ def get_git_diff() -> str:
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout
 
-        # 如果没输出，试试 git diff --cached（只看已 staged 的）
         result = subprocess.run(
             ["git", "diff", "--cached"],
             capture_output=True,
@@ -54,23 +42,7 @@ def get_git_diff() -> str:
 
 
 def generate_commit_message() -> str:
-    """
-    读取代码变更 → AI 生成规范的 Commit Message
-
-    提交信息的规范（Conventional Commits）：
-        type(scope): description
-
-        detailed explanation
-
-    type 类型：
-        feat    新功能
-        fix     Bug 修复
-        docs    文档变更
-        style   代码格式（空格、分号等，不影响逻辑）
-        refactor 代码重构
-        test    测试相关
-        chore   构建/配置变更
-    """
+    """读取代码变更 → AI 生成规范的 Commit Message"""
     diff_content = get_git_diff()
 
     system_prompt = """你是一个 Git 提交信息生成器。
@@ -111,15 +83,7 @@ chore - 杂项/配置
 # 功能 2：AI 代码审查
 # ============================================================
 def review_code(filepath: str) -> str:
-    """
-    审查指定代码文件，给出优化建议。
-
-    审查维度：
-    1. 代码规范（命名、格式）
-    2. 潜在 Bug
-    3. 性能建议
-    4. 可读性改进
-    """
+    """审查指定代码文件，给出优化建议。"""
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             code = f.read()
@@ -154,10 +118,10 @@ def review_code(filepath: str) -> str:
 # ============================================================
 def main():
     print("=" * 55)
-    print("🔧 Git 工作流 AI 工具")
+    print("Git 工作流 AI 工具")
     print("=" * 55)
-    print("1. 生成 Commit Message — 自动分析改动，写提交信息")
-    print("2. AI 代码审查 — 审查指定文件，给优化建议")
+    print("1. 生成 Commit Message")
+    print("2. AI 代码审查")
     print("0. 返回")
     print("=" * 55)
 
@@ -165,7 +129,7 @@ def main():
         choice = input("\n请输入 (1/2/0): ").strip()
 
         if choice == "1":
-            print("\n📋 正在分析 Git 变更...\n")
+            print("\n正在分析 Git 变更...\n")
             msg = generate_commit_message()
             print(f"\n{'-' * 40}")
             print(msg)
@@ -173,12 +137,12 @@ def main():
 
         elif choice == "2":
             path = input("请输入要审查的文件路径: ").strip()
-            print(f"\n🔍 正在审查 {path}...\n")
+            print(f"\n正在审查 {path}...\n")
             result = review_code(path)
             print(result)
 
         elif choice == "0":
-            print("👋 再见！")
+            print("再见！")
             break
 
         else:

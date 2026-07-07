@@ -15,6 +15,9 @@ venv/
 .vscode/
 .idea/
 
+# 日志
+*.log
+
 # 系统文件
 Thumbs.db
 .DS_Store
